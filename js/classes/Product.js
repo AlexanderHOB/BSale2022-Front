@@ -42,6 +42,19 @@ class Product{
         throw new Error(message);
     }
     /**
+     * 
+     * @param {boolean} status boolean to determinate to show loading effect
+     */
+    static #loading(status){
+        const spinner = document.querySelector('#spinner');
+        if(status){
+            spinner.classList = 'show';
+        }else{
+            spinner.classList = 'hide';
+            
+        }
+    }
+    /**
      * // static function to get all products and print in dom
      * @param {string} url - url api  to get all products
      * @param {integer} page - number of page to get data
@@ -49,8 +62,11 @@ class Product{
     static async getAllProducts(url,page=1,name=''){
         let data = []; // set variable that contain all products
         let products =[]; // set variable that contain paginate and products
+        // clear cards  
+        this.#clearDOM('cards');  
         //verify if localStorage get products
         try{
+            this.#loading(true);//start loading effect
             if(localStorage.getItem('products') === null){
                 const result = await fetch(`${url}/products?page=${page}&name=${name}`); //request all products
                 //if exists error from server show message to error
@@ -67,21 +83,22 @@ class Product{
                 data = products.data;
                 console.log('From localStorage');
             }
+            this.#loading(false);// end loading effect
+
         }catch(err){
             err => console.error('Error',err)
         }
 
         //Render Pagination
         this.#pagination(products.totalItems,products.totalPages,products.currentPage,url);
-        // clear cards  
-        this.#clearDOM('cards');  
+        
         // render all products in DOM
         return data.map(({name,price,url_image}) =>{
             //render into DOM
             this.#showDOM(name,price,url_image);
         });
     }
-    
+   
     //function to get product by name
     /**
      * 
@@ -90,7 +107,9 @@ class Product{
      * @param {integer} page number of page to get data
      */
     static async getProductByName(url,name,page=1){
+        this.#clearDOM('cards'); // clear cards   
         try{
+            this.#loading(true);//start loading effect
             const result = await fetch(`${url}/products?page=${page}&name=${name}`);
             //if exists error from server show message to error
             if(!result.ok){
@@ -98,11 +117,12 @@ class Product{
             }
             const products = await result.json();
             const data = products.data;
-            this.#clearDOM('cards'); // clear cards   
             //show message if not found products    
             if(data.length === 0){
                 this.#showError('No contamos con ese producto.');
             }
+            this.#loading(false);// end loading effect
+
             //Render Pagination
             this.#pagination(products.totalItems,products.totalPages,products.currentPage,url,name);
             
@@ -116,13 +136,14 @@ class Product{
     }
     //function to get product by category
     static getProductByCategory(url,category,page=1){
+        this.#loading(true);//start loading effect
+        //CLEAR PRODUCTS
+        this.#clearDOM('cards');
+
         fetch(`${url}/categories/${category}/products?page=${page}`)
         .then(products => products.json())
         .then(products => {
             const data = products.data;
-            const cards = document.querySelector('#cards');
-            //CLEAR PRODUCTS
-            cards.innerHTML = '';
             //Render Pagination
             this.#pagination(products.totalItems,products.totalPages,products.currentPage,url,'',category);
             //SHOW PRODUCTS BY NAME
@@ -130,7 +151,10 @@ class Product{
                 this.#showDOM(name,price,url_image);
             });
         })
-        .catch(err => console.error(err));
+        .catch(err => console.error(err))
+        .finally(() => {
+            this.#loading(false);// end loading effect
+        });
     }
 
     /**

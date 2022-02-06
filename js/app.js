@@ -14,7 +14,6 @@ window.addEventListener("load", ()=>{
     const inputSearch = document.querySelector('#nav-search-input');
     const alert = document.querySelector('#alert-error');
     const dropdown = document.querySelector('#categories-dropdown');
-
     // filter products by name
     buttonSerch.addEventListener('click', (e)=>{
         e.preventDefault();

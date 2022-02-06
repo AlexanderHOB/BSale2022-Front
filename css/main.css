@@ -19,6 +19,7 @@
 .show{
     width: 80%;
     margin:0 auto;
+    text-align: center;
 }
 .card-bsale{
     transition: all 0.5s;
