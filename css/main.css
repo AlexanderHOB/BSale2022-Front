@@ -16,3 +16,14 @@
 .hide{
     display: none;
 }
+.show{
+    width: 80%;
+    margin:0 auto;
+}
+.card-bsale{
+    transition: all 0.5s;
+}
+.card-bsale:hover{
+    transform: scale(1.02);
+    border-color: #FF5C1A;
+}

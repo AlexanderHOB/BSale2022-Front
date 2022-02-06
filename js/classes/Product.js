@@ -8,15 +8,15 @@ class Product{
     static #showDOM(name,price,imageUrl){
         const cards = document.querySelector('#cards'); // get card's container
         cards.innerHTML += `
-            <div class="card mb-2" style="width: 18rem;">
-                <img src=${imageUrl} class="card-img-top" alt="...">
+            <div class="card mb-2 card-bsale" style="width: 18rem;">
+                <img src=${imageUrl} class="card-img-top" alt="..." style="height: 300px;">
                 <div class="card-body">
                     <h5 class="card-title">${name}</h5>
                     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                 </div>
-                <div class="card-body">
-                    <a href="#" class="card-link">${price}</a>
-                    <a href="#" class="card-link">Buy</a>
+                <div class="card-body d-flex justify-content-around">
+                    <h5 class="card-link">$/. ${price}</h5>
+                    <a href="#" class="card-link"><i class="fas fa-shopping-cart"></i></a>
                 </div>
             </div>
         `;
@@ -62,8 +62,8 @@ class Product{
                 //load data in storage 
                 localStorage.setItem('products', JSON.stringify(products));
             }else{
-                
-                products = JSON.parse(localStorage.getItem('products')); // get data from localStorage
+                // get data from localStorage
+                products = JSON.parse(localStorage.getItem('products')); 
                 data = products.data;
                 console.log('From localStorage');
             }
@@ -87,6 +87,7 @@ class Product{
      * 
      * @param {string} url url api to get product by name,price,
      * @param {string} name name of product that should search
+     * @param {integer} page number of page to get data
      */
     static async getProductByName(url,name,page=1){
         try{
@@ -114,53 +115,34 @@ class Product{
         }
     }
     //function to get product by category
-    static getProductByCategory(url,category){
-        fetch(`${url}/categories/${category}/products`)
+    static getProductByCategory(url,category,page=1){
+        fetch(`${url}/categories/${category}/products?page=${page}`)
         .then(products => products.json())
         .then(products => {
             const data = products.data;
             const cards = document.querySelector('#cards');
             //CLEAR PRODUCTS
             cards.innerHTML = '';
-            //LIST OF PAGE
-            this.pagination(products.links);
+            //Render Pagination
+            this.#pagination(products.totalItems,products.totalPages,products.currentPage,url,'',category);
             //SHOW PRODUCTS BY NAME
             return data.map(({name,price,url_image}) =>{
-                this.showDOM(name,price,url_image);
+                this.#showDOM(name,price,url_image);
             });
         })
         .catch(err => console.error(err));
     }
-    //function to sort products by attribute
-    //url = Url where to get all products sorted
-    //attribute = attribute by which the products will be ordered 
-    //order = ASC or DESC
-    static getSortProduct(url,attribute,order = 'desc'){
-        fetch(`${url}?sort=${order}&sort_by=${attribute}`)
-        .then(products => products.json())
-        .then(products => {
-            const data = products.data;
-            const cards = document.querySelector('#cards');
-            //CLEAR PRODUCTS
-            cards.innerHTML = '';
-            //LIST OF PAGE
-            this.pagination(products.links);
-            //SHOW PRODUCTS BY NAME
-            return data.map(({name,price,url_image}) =>{
-                //render into DOM
-                this.showDOM(name,price,url_image);
-            });
-        })
-        .catch(err => console.error(err));
-    }
+
     /**
      * Function to show pagination
      * @param {integer} totalItems Total of elements to display
      * @param {integer} totalPages Total pages
      * @param {integer} currentPage Current Page
      * @param {string} url URL to request elements
+     * @param {string} name name of product that filter to products
+     * @param {string} category name of category that filter to product
      */
-    static #pagination(totalItems,totalPages,currentPage,url,name=''){
+    static #pagination(totalItems,totalPages,currentPage,url,name='',category=''){
         //get element of DOM
         const pagination = document.querySelector('#pagination');
         //clear dom paginate
@@ -179,8 +161,10 @@ class Product{
                 // define what method to call, if use name filter or only fetch products
                 if(name!==''){
                     this.getProductByName(url,name,i);
+                }else if(category!==''){
+                    this.getProductByCategory(url,category,i);
                 }else{
-                    this.getAllProducts(url,i);
+                    this.getAllProducts(url,i)
                 }
             };
             //if current page is equal to number paginate no should request again only get data from localStorage
