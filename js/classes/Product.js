@@ -71,7 +71,9 @@ class Product{
                 const result = await fetch(`${url}/products?page=${page}&name=${name}`); //request all products
                 //if exists error from server show message to error
                 if(!result.ok){
-                    this.#showError('El límite de usuarios conectado a la base de datos a excedido, esperar por favor!.');
+                    this.#loading(false);//end loading effect
+                    this.#showError('El límite de usuarios conectados a la base de datos por hora ha sido excedido, intente más rato!.');
+
                 }
                 products = await result.json(); //transform in JSON format
                 data = products.data; // extract products
