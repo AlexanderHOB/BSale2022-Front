@@ -1,6 +1,5 @@
 //API URL
-const URL_BASE = 'http://localhost:5000/apiv1';
-// const URL_BASE = 'https://bsalebackend2022.herokuapp.com/apiv1';
+const URL_BASE = 'https://bsalebackend2022.herokuapp.com/apiv1';
 
 
 window.addEventListener("load", ()=>{

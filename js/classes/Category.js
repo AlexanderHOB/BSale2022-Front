@@ -12,7 +12,10 @@ class Category{
         option.text = name;
         dropdown.appendChild(option);
     }
-    //funtion to get all categories from API
+    /**
+     * 
+     * @param {string} url url to request
+     */
     static getAllCategories(url){
         fetch(`${url}/categories`)
         .then(categories => categories.json())
